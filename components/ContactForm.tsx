@@ -1,0 +1,3 @@
+"use client";
+import { FormEvent,useState } from "react";
+export function ContactForm(){const [sent,setSent]=useState(false);function submit(e:FormEvent){e.preventDefault();setSent(true)}return <form className="contact-form" onSubmit={submit}><div className="form-row"><label>Name<input name="name" required minLength={2}/></label><label>Email<input name="email" type="email" required/></label></div><label>Subject<input name="subject" required minLength={3}/></label><label>Message<textarea name="message" rows={7} required minLength={10}/></label><button className="button" type="submit">Send Message <span>→</span></button>{sent&&<p role="status" className="form-status">Thanks — the form is ready. Message delivery will be connected in a future release.</p>}</form>}
