@@ -18,6 +18,9 @@ export async function POST(request: Request) {
 
   try {
     incoming = await request.json();
+    if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) {
+      return NextResponse.json({ error: "invalid-request" }, { status: 400 });
+    }
   } catch {
     return NextResponse.json({ error: "invalid-request" }, { status: 400 });
   }

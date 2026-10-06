@@ -97,22 +97,23 @@ export function ContactForm() {
         }),
       });
 
-      if (response.status === 201) {
+      const result = await response.json().catch(() => null);
+      if (response.status === 201 && result?.success === true) {
         setForm(EMPTY_FORM);
-        setStatusMessage("Thanks! Your message has been sent.");
+        setStatusMessage("Thanks! Your message has been accepted for delivery.");
         setIsSuccess(true);
         return;
       }
 
       let errorMessage = "We couldn't send your message right now. Please try again later.";
       try {
-        const payload = (await response.json()) as { error?: string };
+        const payload = result as { error?: string } | null;
 
-        if (payload.error === "invalid-email") {
+        if (payload?.error === "invalid-email") {
           errorMessage = "Please enter a valid email address.";
-        } else if (payload.error === "missing-required") {
+        } else if (payload?.error === "missing-required") {
           errorMessage = "Please complete all required fields.";
-        } else if (payload.error === "short-message") {
+        } else if (payload?.error === "short-message") {
           errorMessage = "Please provide a little more detail.";
         }
       } catch {

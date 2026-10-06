@@ -1,4 +1,5 @@
-import { videos as fallbackVideos, type Video } from "@/data/videos";
+import { videos as fallbackVideos, hasValidYouTubeId, type Video } from "@/data/videos";
+import { classifyVideoTopic } from "@/lib/videoTopics";
 
 const YOUTUBE_CHANNEL_ID = "UCymkMu-xkkGAdMKbY98z_6w";
 const CACHE_TTL_MS = 15 * 60 * 1000;
@@ -37,18 +38,6 @@ function sortNewestFirst(videos: Video[]) {
   });
 }
 
-function normalizeCategory(title: string) {
-  const lowered = title.toLowerCase();
-  if (lowered.includes("geometry")) return "Geometry";
-  if (lowered.includes("algebra")) return "Algebra";
-  if (lowered.includes("calculus")) return "Calculus";
-  if (lowered.includes("logic")) return "Logic";
-  if (lowered.includes("probability")) return "Probability";
-  if (lowered.includes("number") || lowered.includes("theory")) return "Number Theory";
-  if (lowered.includes("puzzle") || lowered.includes("challenge")) return "Puzzles";
-  return "Math Challenge";
-}
-
 function normalizeYouTubeVideo(item: NonNullable<YouTubePlaylistItemsResponse["items"]>[number]): Video | null {
   const snippet = item.snippet;
   if (!snippet) return null;
@@ -61,14 +50,14 @@ function normalizeYouTubeVideo(item: NonNullable<YouTubePlaylistItemsResponse["i
     youtubeId: videoId,
     title,
     description: snippet.description?.trim() || "A new Mathorion challenge video.",
-    category: normalizeCategory(title),
+    category: classifyVideoTopic(title, snippet.description ?? "") ?? "Math Challenge",
     publicationDate: snippet.publishedAt ?? null,
     isPlaceholder: false,
   };
 }
 
 function getFallbackVideos(): Video[] {
-  return sortNewestFirst(fallbackVideos.filter((video) => video.youtubeId || !video.isPlaceholder));
+  return sortNewestFirst(fallbackVideos.filter((video) => !video.isPlaceholder && hasValidYouTubeId(video)));
 }
 
 export async function getMathorionVideos(): Promise<Video[]> {
@@ -144,5 +133,5 @@ export async function getMathorionVideos(): Promise<Video[]> {
 
 export async function getFeaturedMathorionVideo() {
   const videos = await getMathorionVideos();
-  return videos[0] ?? fallbackVideos[0] ?? null;
+  return videos[0] ?? null;
 }

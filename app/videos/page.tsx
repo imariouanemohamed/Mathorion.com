@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -24,7 +25,7 @@ export default async function VideosPage() {
 					<p>Explore concise challenges and animated explanations across algebra, geometry, calculus, logic, and more.</p>
 				</section>
 				<section className="section shell">
-					<VideoLibrary videos={videos} />
+					<Suspense fallback={<p role="status">Loading video library...</p>}><VideoLibrary videos={videos} /></Suspense>
 				</section>
 			</main>
 			<SiteFooter />
